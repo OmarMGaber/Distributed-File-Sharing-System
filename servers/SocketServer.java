@@ -21,7 +21,6 @@ public class SocketServer implements Server {
             this.output = new DataOutputStream(clientSocket.getOutputStream());
         }
 
-
         @Override
         public void run() {
             try {
@@ -30,7 +29,6 @@ public class SocketServer implements Server {
                     System.out.println(message);
                     output.writeUTF("Hello from server");
                     ServerNode.broadcast(SocketServer.this, message);
-
                 }
             } catch (IOException e) {
                 e.printStackTrace();

@@ -15,7 +15,7 @@ public class ServerNode implements Runnable {
     private final int NODE_ID;
     public static final int SERVERS_PORT = 5000;
 
-    private SocketServer server;
+    private Server server;
 
     public static int getNumberOfNodes() {
         return numberOfNodes;
