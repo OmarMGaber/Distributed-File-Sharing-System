@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class SocketServer extends Server {
+public class SocketServer implements Server {
     class ClientHandler implements Runnable {
         private final Socket clientSocket;
         private DataInputStream input;
