@@ -1,6 +1,9 @@
+import servers.ServerNode;
+
 public class Main {
+
     public static void main(String[] args) throws InterruptedException {
-        System.out.println("Hello World!");
+        System.out.println("Testing Nodes 2!");
 
         ServerNode serverNode1 = new ServerNode();
         ServerNode serverNode2 = new ServerNode();
