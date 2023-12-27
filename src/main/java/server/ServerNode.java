@@ -3,6 +3,8 @@ package server;
 import operations.FileOperations;
 import models.ServerFile;
 import models.User;
+
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -213,7 +215,8 @@ public class ServerNode implements Runnable, Comparable<ServerNode>, FileOperati
 
         for (ServerFile serverFile : this.userFilesMap.get(user)) {
             if (serverFile.getFileFullName().equals(fileFullName)) {
-                return this.userFilesMap.get(user).remove(serverFile);
+                this.userFilesMap.get(user).remove(serverFile);
+                return true;
             }
         }
 

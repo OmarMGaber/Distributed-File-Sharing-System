@@ -79,13 +79,8 @@ class ClientHandler implements Runnable {
                 "E:\\Projects\\JavaFX\\DistributedSystems\\Distributed-File-Sharing-System\\ReceivedFiles\\"
                         + "( " + user.getUsername() + " )\\");
 
-        if (isSaved) {
-            System.out.println("File " + serverFile.getFileFullName() + " saved successfully");
-        } else {
-            System.out.println("File " + serverFile.getFileFullName() + " failed to save");
-        }
-
-        System.out.println("User " + user.getUsername() + " stored file " + serverFile.getFileFullName() + " successfully");
+        System.out.println("User: " + user.getUsername() + ((isStored) ? " stored file " + serverFile.getFileFullName() + " successfully" : " failed to store file " + serverFile.getFileFullName()));
+        System.out.println("File Manager: " + serverFile.getFileFullName() + ((isSaved) ? " saved successfully" : " failed to save"));
     }
 
     private void handleRetrieveFile(User user) throws IOException, ClassNotFoundException {
@@ -95,7 +90,7 @@ class ClientHandler implements Runnable {
         objectOutputStream.writeUnshared(retrievedFile);
         objectOutputStream.flush();
 
-        System.out.println("User " + user.getUsername() + " retrieved file " + fileFullName + " successfully");
+        System.out.println("User: " + user.getUsername() + " retrieved file " + fileFullName + " successfully");
     }
 
     private void handleDeleteFile(User user) throws IOException, ClassNotFoundException {
@@ -106,10 +101,14 @@ class ClientHandler implements Runnable {
         objectOutputStream.flush();
 
         if (deleted) {
-            System.out.println("User " + user.getUsername() + " deleted file " + fileFullName + " successfully");
+            FileManager.deleteFileFromDirectory(fileFullName,
+                    "E:\\Projects\\JavaFX\\DistributedSystems\\Distributed-File-Sharing-System\\ReceivedFiles\\"
+                            + "( " + user.getUsername() + " )\\");
         } else {
-            System.out.println("User " + user.getUsername() + " failed to delete file " + fileFullName);
+            System.out.println("File Manager: " + fileFullName + " does not exist");
         }
+
+        System.out.println("User: " + user.getUsername() + ((deleted) ? " deleted file " + fileFullName + " successfully" : " failed to delete file " + fileFullName));
     }
 
     private void handleListFiles(User user) throws IOException {
@@ -118,10 +117,6 @@ class ClientHandler implements Runnable {
         objectOutputStream.writeUnshared(serverFiles);
         objectOutputStream.flush();
 
-        if (serverFiles != null) {
-            System.out.println("User " + user.getUsername() + " listed files successfully");
-        } else {
-            System.out.println("User " + user.getUsername() + " failed to list files");
-        }
+        System.out.println("User: " + user.getUsername() + ((serverFiles == null) ? " has no files" : " listed files successfully"));
     }
 }

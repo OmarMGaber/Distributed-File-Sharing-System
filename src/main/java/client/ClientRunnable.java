@@ -41,33 +41,34 @@ class ClientRunnable implements Runnable {
             case HashSet arrayList -> this.handleReceivedServerFiles((HashSet<ServerFile>) object);
             case Boolean b -> {
                 if (b) {
-                    System.out.println("Operation done successfully");
+                    System.out.println("Server: Operation done successfully");
                 } else {
-                    System.out.println("Operation failed");
+                    System.out.println("Server: Operation failed");
                 }
             }
-            case null, default -> System.out.println("Unknown object received: " + object);
+            case null, default -> System.out.println("Error: Unknown object received: " + object);
         }
     }
 
     private void handleReceivedServerFile(ServerFile serverFile) {
-        System.out.println("File " + serverFile.getFileFullName() + " retrieved successfully");
+        System.out.println("File Manager: " + serverFile.getFileFullName() + " retrieved successfully");
 
         if (FileManager.directoryHasFile(serverFile.getFileFullName(), this.userFilesPath)) {
-            System.out.println("File " + serverFile.getFileFullName() + " already exists in the directory");
+            System.out.println("File Manager: " + serverFile.getFileFullName() + " already exists in the directory");
             return;
         }
 
         boolean isSaved = FileManager.saveFileToDirectory(serverFile, this.userFilesPath);
 
-        System.out.println("File: " + serverFile.getFileFullName() + ((isSaved) ? " saved successfully" : " failed to save"));
+        System.out.println("File Manager: " + serverFile.getFileFullName() + ((isSaved) ? " saved successfully" : " failed to save"));
     }
 
     private void handleReceivedServerFiles(HashSet<ServerFile> serverFiles) {
         for (ServerFile serverFile : serverFiles) {
             this.handleReceivedServerFile(serverFile);
         }
-        System.out.println("Files retrieved successfully");
+
+        System.out.println("File Manager: " + serverFiles.size() + " files retrieved successfully");
     }
 
     private void closeSocket() {

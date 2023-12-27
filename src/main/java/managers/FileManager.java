@@ -45,4 +45,21 @@ public class FileManager {
 
         return false;
     }
+
+    public static boolean deleteFileFromDirectory(String serverFileName, String directoryPath) {
+        File directory = new File(directoryPath);
+        File[] files = directory.listFiles();
+
+        if (files == null) {
+            return false;
+        }
+
+        for (File file : files) {
+            if (file.getName().equals(serverFileName)) {
+                return file.delete();
+            }
+        }
+
+        return false;
+    }
 }

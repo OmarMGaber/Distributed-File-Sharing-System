@@ -33,6 +33,7 @@ public class SocketClient {
                             "( " + user.getUsername() + " )\\")).start();
 
             while (!socket.isClosed()) {
+                System.out.println();
                 getAndSendUserData(user);
                 Thread.sleep(1000); // Wait for server to respond before sending another request
             }
