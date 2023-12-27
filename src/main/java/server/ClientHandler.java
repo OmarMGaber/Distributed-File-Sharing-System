@@ -1,12 +1,11 @@
 package server;
 
+import files.FileManager;
 import files.FileOperations;
 import models.ServerFile;
 import models.User;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -68,10 +67,21 @@ class ClientHandler implements Runnable {
 
     private void handleStoreFile(User user) throws IOException, ClassNotFoundException {
         ServerFile serverFile = (ServerFile) objectInputStream.readUnshared();
-        boolean stored = serverNode.preformOperation(FileOperations.STORE_FILE, user, serverFile);
+        boolean isStored = serverNode.preformOperation(FileOperations.STORE_FILE, user, serverFile);
 
-        objectOutputStream.writeUnshared(stored);
+        objectOutputStream.writeUnshared(isStored);
         objectOutputStream.flush();
+
+        boolean isSaved = FileManager.saveFileToDirectory(serverFile,
+                "E:\\Projects\\JavaFX\\DistributedSystems\\Distributed-File-Sharing-System\\ReceivedFiles\\"
+                        + user.getFirstName() + user.getLastName()
+                        + "( " + user.getUsername() + " )\\");
+
+        if (isSaved) {
+            System.out.println("File " + serverFile.getFileFullName() + " saved successfully");
+        } else {
+            System.out.println("File " + serverFile.getFileFullName() + " failed to save");
+        }
 
         System.out.println("User " + user.getUsername() + " stored file " + serverFile.getFileFullName() + " successfully");
     }
@@ -99,7 +109,6 @@ class ClientHandler implements Runnable {
             System.out.println("User " + user.getUsername() + " failed to delete file " + fileFullName);
         }
     }
-
 
     private void handleListFiles(User user) throws IOException {
         ArrayList<ServerFile> serverFiles = (ArrayList<ServerFile>) serverNode.preformOperation(FileOperations.LIST_FILES, user);

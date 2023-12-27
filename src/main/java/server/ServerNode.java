@@ -147,7 +147,7 @@ public class ServerNode implements Runnable, Comparable<ServerNode>, FileOperati
             while (!this.serverSocket.isClosed()) {
 
                 new Thread(new ClientHandler(this, this.serverSocket.accept())).start();
-
+                System.out.println("New Client at port:" + this.PORT);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
