@@ -1,7 +1,6 @@
-package files;
+package managers;
 
 import models.ServerFile;
-import models.User;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -28,5 +27,22 @@ public class FileManager {
         } catch (NullPointerException e) {
             return false;
         }
+    }
+
+    public static boolean directoryHasFile(String serverFileName, String directoryPath) {
+        File directory = new File(directoryPath);
+        File[] files = directory.listFiles();
+
+        if (files == null) {
+            return false;
+        }
+
+        for (File file : files) {
+            if (file.getName().equals(serverFileName)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

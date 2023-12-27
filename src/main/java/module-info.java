@@ -8,5 +8,6 @@ module ds.dfss.distributedfilesharingsystem {
     exports server;
     exports client;
     exports models;
-    exports files;
+    exports managers;
+    exports operations;
 }

@@ -90,8 +90,7 @@ public class ServerFile implements Serializable {
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
-        if (obj == null || !(obj instanceof ServerFile)) return false;
-        ServerFile otherFile = (ServerFile) obj;
+        if (!(obj instanceof ServerFile otherFile)) return false;
         return this.fileFullName.equals(otherFile.fileFullName);
     }
 }

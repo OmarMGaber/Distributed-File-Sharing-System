@@ -1,14 +1,14 @@
 package client;
 
-import files.FileManager;
+import managers.FileManager;
 import models.ServerFile;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
 class ClientRunnable implements Runnable {
     private final Socket socket;
@@ -38,7 +38,7 @@ class ClientRunnable implements Runnable {
         switch (object) {
             case String s -> System.out.println(object);
             case ServerFile serverFile -> this.handleReceivedServerFile(serverFile);
-            case ArrayList arrayList -> this.handleReceivedServerFiles((ArrayList<ServerFile>) object);
+            case HashSet arrayList -> this.handleReceivedServerFiles((HashSet<ServerFile>) object);
             case Boolean b -> {
                 if (b) {
                     System.out.println("Operation done successfully");
@@ -52,16 +52,18 @@ class ClientRunnable implements Runnable {
 
     private void handleReceivedServerFile(ServerFile serverFile) {
         System.out.println("File " + serverFile.getFileFullName() + " retrieved successfully");
+
+        if (FileManager.directoryHasFile(serverFile.getFileFullName(), this.userFilesPath)) {
+            System.out.println("File " + serverFile.getFileFullName() + " already exists in the directory");
+            return;
+        }
+
         boolean isSaved = FileManager.saveFileToDirectory(serverFile, this.userFilesPath);
 
-        if (isSaved) {
-            System.out.println("File: " + serverFile.getFileFullName() + " saved successfully");
-        } else {
-            System.out.println("File: " + serverFile.getFileFullName() + " failed to save");
-        }
+        System.out.println("File: " + serverFile.getFileFullName() + ((isSaved) ? " saved successfully" : " failed to save"));
     }
 
-    private void handleReceivedServerFiles(ArrayList<ServerFile> serverFiles) {
+    private void handleReceivedServerFiles(HashSet<ServerFile> serverFiles) {
         for (ServerFile serverFile : serverFiles) {
             this.handleReceivedServerFile(serverFile);
         }

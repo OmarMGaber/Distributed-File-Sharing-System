@@ -2,7 +2,7 @@ package client;
 
 import models.ServerFile;
 import models.User;
-import files.FileOperations;
+import operations.FileOperations;
 import server.ServerNode;
 
 import java.io.*;
@@ -12,50 +12,44 @@ public class SocketClient {
 
     private static BufferedReader reader;
     private static ObjectOutputStream outputStream;
+    private static Socket socket;
 
     public static void main(String[] args) {
         int numberOfNodes = 3;
         int port = ServerNode.SERVERS_PORT + 1 + (int) (Math.random() * numberOfNodes);
         reader = new BufferedReader(new InputStreamReader(System.in));
 
-        try (Socket socket = new Socket("localhost", port)) {
+        try {
+            socket = new Socket("localhost", port);
             System.out.println("Client Started at port " + port);
-
-            User user = getUserData();
-
             outputStream = new ObjectOutputStream(socket.getOutputStream());
+
+            System.out.println("========Login to the server========");
+            System.out.print("Enter your Username: ");
+            User user = new User(reader.readLine());
+
             new Thread(new ClientRunnable(socket,
-                    "C:\\Users\\Omar\\Desktop\\client_files\\"
-                            + user.getFirstName() + user.getLastName() +
+                    "C:\\Users\\Omar\\Desktop\\client_files\\" +
                             "( " + user.getUsername() + " )\\")).start();
 
             while (!socket.isClosed()) {
                 getAndSendUserData(user);
-                Thread.sleep(1000);
+                Thread.sleep(1000); // Wait for server to respond before sending another request
             }
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static User getUserData() throws IOException {
-        System.out.println("Enter username:");
-        String username = reader.readLine();
-        System.out.println("Enter first name:");
-        String firstName = reader.readLine();
-        System.out.println("Enter last name:");
-        String lastName = reader.readLine();
-        return new User(username, "0000", firstName, lastName);
-    }
-
     private static void getAndSendUserData(User user) throws IOException {
-        System.out.println("\t1. Store File\n" +
-                "\t2. Delete File\n" +
-                "\t3. Retrieve File\n" +
-                "\t4. List Files\n" +
-                "\t5. Update File\n" +
-                "\t0. Exit\n" +
-                "Choose an operation:");
+        System.out.println("""
+                \t1. Store File
+                \t2. Delete File
+                \t3. Retrieve File
+                \t4. List Files
+                \t5. Update File
+                \t0. Exit
+                Choose an operation:""");
         String userInput = reader.readLine();
 
         switch (userInput) {
@@ -83,25 +77,25 @@ public class SocketClient {
         String filePath = reader.readLine();
         ServerFile serverFile = new ServerFile(filePath);
 
-        writeObjectsToServer(FileOperations.STORE_FILE, user, serverFile);
+        writeObjectsToServer(FileOperations.OperationType.STORE_FILE, user, serverFile);
     }
 
     private static void handleDeleteFile(User user) throws IOException {
         System.out.println("Enter file name:");
         String fileName = reader.readLine();
 
-        writeObjectsToServer(FileOperations.DELETE_FILE, user, fileName);
+        writeObjectsToServer(FileOperations.OperationType.DELETE_FILE, user, fileName);
     }
 
     private static void handleRetrieveFile(User user) throws IOException {
         System.out.println("Enter file name:");
         String fileName = reader.readLine();
 
-        writeObjectsToServer(FileOperations.RETRIEVE_FILE, user, fileName);
+        writeObjectsToServer(FileOperations.OperationType.RETRIEVE_FILE, user, fileName);
     }
 
     private static void handleListFiles(User user) throws IOException {
-        writeObjectsToServer(FileOperations.LIST_FILES, user);
+        writeObjectsToServer(FileOperations.OperationType.LIST_FILES, user);
     }
 
     private static void writeObjectsToServer(Object... objects) throws IOException {

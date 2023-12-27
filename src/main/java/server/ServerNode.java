@@ -1,22 +1,50 @@
 package server;
 
-import files.FileOperations;
-import files.FileOperationsManager;
+import operations.FileOperations;
 import models.ServerFile;
 import models.User;
-
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
-public class ServerNode implements Runnable, Comparable<ServerNode>, FileOperationsManager {
+public class ServerNode implements Runnable, Comparable<ServerNode>, FileOperations {
 
-    public boolean preformOperation(FileOperations operation, User user, ServerFile serverFile) {
+    public boolean preformOperation(FileOperations.OperationType operation, User user, ServerFile serverFile) {
         return this.storeFile(user, serverFile);
     }
 
-    public Object preformOperation(FileOperations operation, User user, String fileFullName) {
+    public User hasUser(String username) {
+        for (User user : this.userFilesMap.keySet()) {
+            if (user.getUsername().equals(username)) {
+                return user;
+            }
+        }
+        return null;
+    }
+
+    public User searchUser(String username, int depth) {
+        if (depth == 0) {
+            return null;
+        }
+
+        User user = this.hasUser(username);
+        if (user != null) {
+            return user;
+        }
+
+        for (ServerNode serverNode : this.serverPeers) {
+            user = serverNode.searchUser(username, depth - 1);
+            if (user != null) {
+                return user;
+            }
+        }
+
+        return null;
+    }
+
+    public Object preformOperation(FileOperations.OperationType operation, User user, String fileFullName) {
         int depth = 5;
 
         switch (operation) {
@@ -36,13 +64,13 @@ public class ServerNode implements Runnable, Comparable<ServerNode>, FileOperati
         return null;
     }
 
-    public ArrayList<ServerFile> preformOperation(FileOperations operation, User user) {
+    public HashSet<ServerFile> preformOperation(FileOperations.OperationType operation, User user) {
         HashMap<ServerNode, Boolean> visited = new HashMap<>();
         return this.retrieveAllUserFiles(user, visited);
     }
 
-    public ArrayList<ServerFile> retrieveAllUserFiles(User user, HashMap<ServerNode, Boolean> visited) {
-        ArrayList<ServerFile> userFiles = new ArrayList<>();
+    public HashSet<ServerFile> retrieveAllUserFiles(User user, HashMap<ServerNode, Boolean> visited) {
+        HashSet<ServerFile> userFiles = new HashSet<>();
 
         if (visited.containsKey(this)) {
             return userFiles;
@@ -102,20 +130,16 @@ public class ServerNode implements Runnable, Comparable<ServerNode>, FileOperati
     }
 
     private static int numberOfNodes = 0;
-
-    {
-        numberOfNodes++; // Increment number of nodes when a new node is created
-    }
-
     private final int NODE_ID;
     private final int PORT;
     public static final int SERVERS_PORT = 5000;
     private ServerSocket serverSocket;
 
     private final List<ServerNode> serverPeers;
-    private final HashMap<User, ArrayList<ServerFile>> userFilesMap;
+    private final HashMap<User, HashSet<ServerFile>> userFilesMap;
 
     public ServerNode() {
+        numberOfNodes++; // Increment number of nodes when a new node is created
         this.NODE_ID = numberOfNodes;
         this.serverPeers = new ArrayList<>();
         this.userFilesMap = new HashMap<>();
@@ -123,6 +147,7 @@ public class ServerNode implements Runnable, Comparable<ServerNode>, FileOperati
     }
 
     public ServerNode(int port) {
+        numberOfNodes++; // Increment number of nodes when a new node is created
         this.NODE_ID = numberOfNodes;
         this.serverPeers = new ArrayList<>();
         this.userFilesMap = new HashMap<>();
@@ -159,7 +184,7 @@ public class ServerNode implements Runnable, Comparable<ServerNode>, FileOperati
     }
 
     public void addUserToServerTable(User user) {
-        this.userFilesMap.put(user, new ArrayList<>());
+        this.userFilesMap.put(user, new HashSet<>());
     }
 
     public boolean userHas(User user, ServerFile serverFile) {
@@ -211,7 +236,7 @@ public class ServerNode implements Runnable, Comparable<ServerNode>, FileOperati
     }
 
     @Override
-    public ArrayList<ServerFile> listFiles(User user) {
+    public HashSet<ServerFile> listFiles(User user) {
         if (!this.hasUser(user)) {
             return null;
         }

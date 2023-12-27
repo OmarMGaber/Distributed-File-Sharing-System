@@ -2,34 +2,27 @@ package models;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 public class User implements Serializable {
     private static int userCount = 0;
-    private final int USER_ID;
+//    private final int USER_ID;
     private final String username;
-    private final String password;
-    private final String firstName;
-    private final String lastName;
 
-    private final List<ServerFile> files;
+    private final HashSet<ServerFile> files;
 
-    public User(String username, String password, String firstName, String lastName) {
+    public User(String username) {
         userCount++;
 
         // User ID is system assigned
-        this.USER_ID = userCount;
+//        this.USER_ID = userCount;
 
         validateString(username, "Username");
-        validateString(password, "Password");
-        validateString(firstName, "First name");
-        validateString(lastName, "Last name");
 
         this.username = username;
-        this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.files = new ArrayList<>();
+        this.files = new HashSet<>();
     }
 
     private void validateString(String string, String fieldName) {
@@ -59,7 +52,7 @@ public class User implements Serializable {
         return this.files.remove(file);
     }
 
-    public List<ServerFile> getFiles() {
+    public HashSet<ServerFile> getFiles() {
         return this.files;
     }
 
@@ -67,15 +60,4 @@ public class User implements Serializable {
         return this.username;
     }
 
-    public String getPassword() {
-        return this.password;
-    }
-
-    public String getFirstName() {
-        return this.firstName;
-    }
-
-    public String getLastName() {
-        return this.lastName;
-    }
 }
