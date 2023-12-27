@@ -132,7 +132,7 @@ public class ServerNode implements Runnable, Comparable<ServerNode>, FileOperati
     }
 
     private static int numberOfNodes = 0;
-    private final int NODE_ID;
+    public final int NODE_ID;
     private final int PORT;
     public static final int SERVERS_PORT = 5000;
     private ServerSocket serverSocket;

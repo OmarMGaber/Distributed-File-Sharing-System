@@ -2,24 +2,45 @@ package app;
 
 import server.ServerNode;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 public class Main {
-
     public static void main(String[] args) {
-        System.out.println("Starting server nodes...");
+        // Creating a constant number of nodes and connecting them randomly for testing
 
-        ServerNode serverNode1 = new ServerNode();
-        ServerNode serverNode2 = new ServerNode();
-        ServerNode serverNode3 = new ServerNode();
+        List<ServerNode> serverNodes = new ArrayList<>();
 
-        serverNode1.addPeer(serverNode2);
-        serverNode1.addPeer(serverNode3);
-        serverNode2.addPeer(serverNode1);
-        serverNode2.addPeer(serverNode3);
+        final int numberOfNodes = 100;
+        for (int i = 0; i < numberOfNodes; i++) {
+            ServerNode serverNode = new ServerNode();
+            serverNodes.add(serverNode);
+        }
 
-        new Thread(serverNode1).start();
-        new Thread(serverNode2).start();
-        new Thread(serverNode3).start();
+        connectNodesRandomly(serverNodes);
 
-        System.out.println("All server nodes has started.");
+        for (ServerNode serverNode : serverNodes) {
+            new Thread(serverNode).start();
+        }
+    }
+
+    private static void connectNodesRandomly(List<ServerNode> serverNodes) {
+        Random random = new Random();
+
+        for (ServerNode serverNode : serverNodes) {
+            int numberOfPeers = random.nextInt(serverNodes.size());
+            System.out.println("Server " + serverNode.NODE_ID + " will connect to " + numberOfPeers + " peers");
+            for (int i = 0; i < numberOfPeers; i++) {
+                int randomPeerIndex = random.nextInt(serverNodes.size());
+                ServerNode randomPeer = serverNodes.get(randomPeerIndex);
+                System.out.println("Server " + serverNode.NODE_ID + " will connect to server " + randomPeer.NODE_ID);
+
+                // Avoid connecting a node to itself
+                if (randomPeer != serverNode && !serverNode.addPeer(randomPeer)) {
+                    i--;
+                }
+            }
+        }
     }
 }
