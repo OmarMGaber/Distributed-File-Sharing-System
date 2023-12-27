@@ -6,8 +6,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class FileManager {
-    private FileManager() {
+public class DirectoryManager {
+    private DirectoryManager() {
     }
 
     public static boolean saveFileToDirectory(ServerFile serverFile, String directoryPath) {

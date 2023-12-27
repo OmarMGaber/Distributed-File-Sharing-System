@@ -12,7 +12,7 @@ public class Main {
 
         List<ServerNode> serverNodes = new ArrayList<>();
 
-        final int numberOfNodes = 100;
+        final int numberOfNodes = 10;
         for (int i = 0; i < numberOfNodes; i++) {
             ServerNode serverNode = new ServerNode();
             serverNodes.add(serverNode);
@@ -29,8 +29,9 @@ public class Main {
         Random random = new Random();
 
         for (ServerNode serverNode : serverNodes) {
-            int numberOfPeers = random.nextInt(serverNodes.size());
+            int numberOfPeers = random.nextInt(serverNodes.size() - 1) + 1;
             System.out.println("Server " + serverNode.NODE_ID + " will connect to " + numberOfPeers + " peers");
+
             for (int i = 0; i < numberOfPeers; i++) {
                 int randomPeerIndex = random.nextInt(serverNodes.size());
                 ServerNode randomPeer = serverNodes.get(randomPeerIndex);
@@ -38,7 +39,7 @@ public class Main {
 
                 // Avoid connecting a node to itself
                 if (randomPeer != serverNode && !serverNode.addPeer(randomPeer)) {
-                    i--;
+                    i--; // Try again
                 }
             }
         }

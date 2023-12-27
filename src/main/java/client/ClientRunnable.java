@@ -1,13 +1,11 @@
 package client;
 
-import managers.FileManager;
+import managers.DirectoryManager;
 import models.ServerFile;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 
 class ClientRunnable implements Runnable {
@@ -53,14 +51,14 @@ class ClientRunnable implements Runnable {
     private void handleReceivedServerFile(ServerFile serverFile) {
         System.out.println("File Manager: " + serverFile.getFileFullName() + " retrieved successfully");
 
-        if (FileManager.directoryHasFile(serverFile.getFileFullName(), this.userFilesPath)) {
-            System.out.println("File Manager: " + serverFile.getFileFullName() + " already exists in the directory");
+        if (DirectoryManager.directoryHasFile(serverFile.getFileFullName(), this.userFilesPath)) {
+            System.out.println("Directory Manager: " + serverFile.getFileFullName() + " already exists in the directory");
             return;
         }
 
-        boolean isSaved = FileManager.saveFileToDirectory(serverFile, this.userFilesPath);
+        boolean isSaved = DirectoryManager.saveFileToDirectory(serverFile, this.userFilesPath);
 
-        System.out.println("File Manager: " + serverFile.getFileFullName() + ((isSaved) ? " saved successfully" : " failed to save"));
+        System.out.println("Directory Manager: " + serverFile.getFileFullName() + ((isSaved) ? " saved successfully" : " failed to save"));
     }
 
     private void handleReceivedServerFiles(HashSet<ServerFile> serverFiles) {

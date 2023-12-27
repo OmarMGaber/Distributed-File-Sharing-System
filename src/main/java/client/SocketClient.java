@@ -12,16 +12,17 @@ public class SocketClient {
 
     private static BufferedReader reader;
     private static ObjectOutputStream outputStream;
-    private static Socket socket;
 
     public static void main(String[] args) {
-        int numberOfNodes = 3;
-        int port = ServerNode.SERVERS_PORT + 1 + (int) (Math.random() * numberOfNodes);
+        int numberOfNodes = 10;
+
+        // Creating a constant number of nodes and connecting them randomly for testing
+        int randomPort = ServerNode.SERVERS_PORT + 1 + (int) (Math.random() * numberOfNodes);
         reader = new BufferedReader(new InputStreamReader(System.in));
 
         try {
-            socket = new Socket("localhost", port);
-            System.out.println("Client Started at port " + port);
+            Socket socket = new Socket("localhost", randomPort);
+            System.out.println("Client Started at port " + randomPort);
             outputStream = new ObjectOutputStream(socket.getOutputStream());
 
             System.out.println("========Login to the server========");
@@ -35,7 +36,7 @@ public class SocketClient {
             while (!socket.isClosed()) {
                 System.out.println();
                 getAndSendUserData(user);
-                Thread.sleep(1000); // Wait for server to respond before sending another request
+                Thread.sleep(500); // Wait for server to respond before sending another request
             }
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);

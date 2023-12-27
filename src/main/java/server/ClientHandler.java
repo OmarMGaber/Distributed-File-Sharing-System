@@ -1,24 +1,25 @@
 package server;
 
-import managers.FileManager;
-import operations.FileOperations;
+import managers.DirectoryManager;
 import models.ServerFile;
 import models.User;
+import operations.FileOperations;
+import managers.FileOperationsManager;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 
 class ClientHandler implements Runnable {
-    private final ServerNode serverNode;
+    private final FileOperationsManager fileOperationsManager;
     private final Socket clientSocket;
     private final ObjectInputStream objectInputStream;
     private final ObjectOutputStream objectOutputStream;
 
-    ClientHandler(ServerNode serverNode, Socket clientSocket) throws IOException {
-        this.serverNode = serverNode;
+    ClientHandler(FileOperationsManager fileOpsHandler, Socket clientSocket) throws IOException {
+        this.fileOperationsManager = fileOpsHandler;
         this.clientSocket = clientSocket;
         try {
             this.objectInputStream = new ObjectInputStream(this.clientSocket.getInputStream());
@@ -39,8 +40,7 @@ class ClientHandler implements Runnable {
             throw new RuntimeException(e);
         } finally {
             try {
-                System.out.println("Closing client socket...");
-                clientSocket.close();
+                this.clientSocket.close();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -70,12 +70,11 @@ class ClientHandler implements Runnable {
 
     private void handleStoreFile(User user) throws IOException, ClassNotFoundException {
         ServerFile serverFile = (ServerFile) objectInputStream.readUnshared();
-        boolean isStored = serverNode.preformOperation(FileOperations.OperationType.STORE_FILE, user, serverFile);
-
+        boolean isStored = fileOperationsManager.storeFile(user, serverFile);
         objectOutputStream.writeUnshared(isStored);
         objectOutputStream.flush();
 
-        boolean isSaved = FileManager.saveFileToDirectory(serverFile,
+        boolean isSaved = DirectoryManager.saveFileToDirectory(serverFile,
                 "E:\\Projects\\JavaFX\\DistributedSystems\\Distributed-File-Sharing-System\\ReceivedFiles\\"
                         + "( " + user.getUsername() + " )\\");
 
@@ -85,7 +84,7 @@ class ClientHandler implements Runnable {
 
     private void handleRetrieveFile(User user) throws IOException, ClassNotFoundException {
         String fileFullName = (String) objectInputStream.readUnshared();
-        ServerFile retrievedFile = (ServerFile) serverNode.preformOperation(FileOperations.OperationType.RETRIEVE_FILE, user, fileFullName);
+        ServerFile retrievedFile = (ServerFile) fileOperationsManager.preformOperation(FileOperations.OperationType.RETRIEVE_FILE, user, fileFullName);
 
         objectOutputStream.writeUnshared(retrievedFile);
         objectOutputStream.flush();
@@ -95,13 +94,13 @@ class ClientHandler implements Runnable {
 
     private void handleDeleteFile(User user) throws IOException, ClassNotFoundException {
         String fileFullName = (String) objectInputStream.readUnshared();
-        boolean deleted = (boolean) serverNode.preformOperation(FileOperations.OperationType.DELETE_FILE, user, fileFullName);
+        boolean deleted = (boolean) fileOperationsManager.preformOperation(FileOperations.OperationType.DELETE_FILE, user, fileFullName);
 
         objectOutputStream.writeUnshared(deleted);
         objectOutputStream.flush();
 
         if (deleted) {
-            FileManager.deleteFileFromDirectory(fileFullName,
+            DirectoryManager.deleteFileFromDirectory(fileFullName,
                     "E:\\Projects\\JavaFX\\DistributedSystems\\Distributed-File-Sharing-System\\ReceivedFiles\\"
                             + "( " + user.getUsername() + " )\\");
         } else {
@@ -112,7 +111,7 @@ class ClientHandler implements Runnable {
     }
 
     private void handleListFiles(User user) throws IOException {
-        HashSet<ServerFile> serverFiles = (HashSet<ServerFile>) serverNode.preformOperation(FileOperations.OperationType.LIST_FILES, user);
+        HashSet<ServerFile> serverFiles = (HashSet<ServerFile>) fileOperationsManager.preformOperation(FileOperations.OperationType.LIST_FILES, user);
 
         objectOutputStream.writeUnshared(serverFiles);
         objectOutputStream.flush();
