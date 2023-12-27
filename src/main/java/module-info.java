@@ -5,9 +5,8 @@ module ds.dfss.distributedfilesharingsystem {
 
     opens app to javafx.fxml;
     exports app;
-    exports view;
-    exports servers;
+    exports server;
     exports client;
     exports models;
-    exports operations;
+    exports files;
 }

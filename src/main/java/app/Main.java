@@ -1,11 +1,11 @@
 package app;
 
-import servers.ServerNode;
+import server.ServerNode;
 
 public class Main {
 
-    public static void main(String[] args) throws InterruptedException {
-        System.out.println("Testing Nodes 2!");
+    public static void main(String[] args) {
+        System.out.println("Starting server nodes...");
 
         ServerNode serverNode1 = new ServerNode();
         ServerNode serverNode2 = new ServerNode();
@@ -20,5 +20,6 @@ public class Main {
         new Thread(serverNode2).start();
         new Thread(serverNode3).start();
 
+        System.out.println("All server nodes has started.");
     }
 }
